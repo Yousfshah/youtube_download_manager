@@ -1,9 +1,7 @@
 import streamlit as st
 import yt_dlp
 from yt_dlp.utils import DownloadError
-import tempfile
 import pathlib
-import os
 import platform
 
 # Initialize session state variables
@@ -98,17 +96,16 @@ def main():
     link = st.text_input("Enter YouTube Video Link")
     file_name = st.text_input("Enter a File Name")
 
-    # Determine the default download path
-    if platform.system() == "Windows":
-        default_path = os.path.expanduser("C:/Users/YourUserName/Downloads")
-    elif platform.system() == "Darwin":  # macOS
-        default_path = os.path.expanduser("~/Downloads")
-    elif platform.system() == "Linux":
-        default_path = os.path.expanduser("~/Downloads")
-    else:
-        default_path = "/tmp"  # For other platforms
+    # Provide clear instructions for downloading video on PC or laptop
+    st.write("""
+    **Instructions:**
+    - For **PC or Laptop**, you can specify the directory where you want the video saved. By default, the video will be saved to your `Downloads` folder.
+    - **Mobile Users**: The video will automatically be saved to your device's default download location, which is usually the gallery or videos folder.
+    """)
 
-    download_path = st.text_input("Select Download Path", default_path)
+    # Default path text display (for PCs and laptops)
+    default_path = str(pathlib.Path.home() / "Downloads")  # Default download path for most systems
+    file_path_display = st.text_input("Download Path (Optional)", default_path)
 
     if st.session_state['is_downloading']:
         st.button("Downloading...", disabled=True)
@@ -118,21 +115,17 @@ def main():
                 st.error("Please provide a YouTube video link.")
             elif not file_name:
                 st.error("Please specify a file name for the video.")
-            elif not download_path:
-                st.error("Please specify a valid download path.")
             else:
                 try:
-                    file_path = str(pathlib.Path(download_path) / f"{file_name}.mp4")
-
                     # Ensure the path exists
-                    pathlib.Path(download_path).mkdir(parents=True, exist_ok=True)
+                    pathlib.Path(file_path_display).mkdir(parents=True, exist_ok=True)
 
                     st.session_state['progress_bar'] = st.empty()
                     st.session_state['status_text'] = st.empty()
                     st.session_state['is_downloading'] = True
 
                     with st.spinner("Downloading..."):
-                        downloaded_file = download_video(link, file_path)
+                        downloaded_file = download_video(link, file_path_display)
 
                     st.success("Video downloaded successfully!")
                     st.info(f"File saved at: {downloaded_file}")
