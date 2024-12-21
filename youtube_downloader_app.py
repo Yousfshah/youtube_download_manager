@@ -3,6 +3,8 @@ import yt_dlp
 from yt_dlp.utils import DownloadError
 import tempfile
 import pathlib
+import os
+import platform
 
 # Initialize session state variables
 if 'progress_bar' not in st.session_state:
@@ -96,8 +98,17 @@ def main():
     link = st.text_input("Enter YouTube Video Link")
     file_name = st.text_input("Enter a File Name")
 
-    # Directory selection using Streamlit's file uploader for simplicity
-    download_path = st.text_input("Select Download Path")
+    # Determine the default download path
+    if platform.system() == "Windows":
+        default_path = os.path.expanduser("C:/Users/YourUserName/Downloads")
+    elif platform.system() == "Darwin":  # macOS
+        default_path = os.path.expanduser("~/Downloads")
+    elif platform.system() == "Linux":
+        default_path = os.path.expanduser("~/Downloads")
+    else:
+        default_path = "/tmp"  # For other platforms
+
+    download_path = st.text_input("Select Download Path", default_path)
 
     if st.session_state['is_downloading']:
         st.button("Downloading...", disabled=True)
@@ -112,6 +123,9 @@ def main():
             else:
                 try:
                     file_path = str(pathlib.Path(download_path) / f"{file_name}.mp4")
+
+                    # Ensure the path exists
+                    pathlib.Path(download_path).mkdir(parents=True, exist_ok=True)
 
                     st.session_state['progress_bar'] = st.empty()
                     st.session_state['status_text'] = st.empty()
