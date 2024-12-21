@@ -96,7 +96,7 @@ def main():
     file_name = st.text_input("Enter a File Name")
 
     # User specifies the download path (no placeholder)
-    download_path = st.text_input("Enter the Path where you want to save the video")
+    download_path = st.text_input("Download Path (C:\Users\YourUsername\Downloads)")
 
     if st.session_state['is_downloading']:
         st.button("Downloading...", disabled=True)
