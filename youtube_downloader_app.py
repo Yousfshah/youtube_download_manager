@@ -2,6 +2,7 @@ import streamlit as st
 import yt_dlp
 from yt_dlp.utils import DownloadError
 import pathlib
+import os
 
 # Initialize session state variables
 if 'progress_bar' not in st.session_state:
@@ -54,48 +55,12 @@ def download_video(link, file_path):
 
 # Streamlit App
 def main():
-    st.markdown(
-        """
-        <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-        .title {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #4CAF50;
-            margin-bottom: 20px;
-            animation: fadeIn 2s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .spinner {
-            margin: 20px auto;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-top-color: #4CAF50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.header("🎥 :rainbow[YouTube Video Downloader For PC & Laptops]")
+    st.header("🎥 YouTube Video Downloader For PC & Laptops")
 
-    st.write(":rainbow[Download YouTube videos in 1080p resolution]")
+    st.write("Download YouTube videos in 1080p resolution")
 
     link = st.text_input("Enter YouTube Video Link")
     file_name = st.text_input("Enter a File Name")
-
-    # User specifies the download path (no placeholder)
     download_path = st.text_input("Download Path (e.g., C:\\Users\\YourUsername\\Downloads)")
 
     if st.session_state['is_downloading']:
@@ -110,21 +75,30 @@ def main():
                 st.error("Please specify a valid download path.")
             else:
                 try:
-                    # Ensure the specified path exists or create it
+                    # Resolve and create the download path
                     download_path_obj = pathlib.Path(download_path).resolve()
-                    download_path_obj.mkdir(parents=True, exist_ok=True)
+                    if not download_path_obj.exists():
+                        download_path_obj.mkdir(parents=True, exist_ok=True)
 
                     file_path = str(download_path_obj / f"{file_name}.mp4")
 
-                    st.session_state['progress_bar'] = st.empty()
-                    st.session_state['status_text'] = st.empty()
-                    st.session_state['is_downloading'] = True
+                    # Check if the file already exists
+                    if os.path.exists(file_path):
+                        st.error("A file with this name already exists. Please choose a different file name.")
+                    else:
+                        st.session_state['progress_bar'] = st.empty()
+                        st.session_state['status_text'] = st.empty()
+                        st.session_state['is_downloading'] = True
 
-                    with st.spinner("Downloading..."):
-                        downloaded_file = download_video(link, file_path)
+                        with st.spinner("Downloading..."):
+                            downloaded_file = download_video(link, file_path)
 
-                    st.success("Video downloaded successfully!")
-                    st.info(f"File saved at: {downloaded_file}")
+                        # Verify file existence
+                        if os.path.exists(downloaded_file):
+                            st.success("Video downloaded successfully!")
+                            st.info(f"File saved at: {downloaded_file}")
+                        else:
+                            st.error("Download completed, but file not found at the specified location.")
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
                 finally:
