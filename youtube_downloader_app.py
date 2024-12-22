@@ -55,9 +55,9 @@ def download_video(link, file_path):
 
 # Streamlit App
 def main():
-    st.header("🎥 YouTube Video Downloader For PC & Laptops")
+    st.header("🎥 :rainbow[YouTube Video Downloader For PC & Laptops]")
 
-    st.write("Download YouTube videos in 1080p resolution")
+    st.write(":rainbow[Download YouTube videos in 1080p resolution]")
 
     link = st.text_input("Enter YouTube Video Link")
     file_name = st.text_input("Enter a File Name")
