@@ -61,7 +61,10 @@ def main():
 
     link = st.text_input("Enter YouTube Video Link")
     file_name = st.text_input("Enter a File Name")
-    download_path = st.text_input("Download Path (e.g., C:\\Users\\YourUsername\\Downloads)")
+
+    # Set the download path relative to the app
+    download_dir = pathlib.Path("downloads")
+    download_dir.mkdir(exist_ok=True)  # Create the directory if it doesn't exist
 
     if st.session_state['is_downloading']:
         st.button("Downloading...", disabled=True)
@@ -71,16 +74,9 @@ def main():
                 st.error("Please provide a YouTube video link.")
             elif not file_name:
                 st.error("Please specify a file name for the video.")
-            elif not download_path:
-                st.error("Please specify a valid download path.")
             else:
                 try:
-                    # Resolve and create the download path
-                    download_path_obj = pathlib.Path(download_path).resolve()
-                    if not download_path_obj.exists():
-                        download_path_obj.mkdir(parents=True, exist_ok=True)
-
-                    file_path = str(download_path_obj / f"{file_name}.mp4")
+                    file_path = download_dir / f"{file_name}.mp4"
 
                     # Check if the file already exists
                     if os.path.exists(file_path):
@@ -91,14 +87,21 @@ def main():
                         st.session_state['is_downloading'] = True
 
                         with st.spinner("Downloading..."):
-                            downloaded_file = download_video(link, file_path)
+                            downloaded_file = download_video(link, str(file_path))
 
                         # Verify file existence
                         if os.path.exists(downloaded_file):
                             st.success("Video downloaded successfully!")
-                            st.info(f"File saved at: {downloaded_file}")
+                            st.info("Click the button below to download the video to your computer.")
+                            with open(downloaded_file, "rb") as file:
+                                btn = st.download_button(
+                                    label="Download Video",
+                                    data=file,
+                                    file_name=f"{file_name}.mp4",
+                                    mime="video/mp4",
+                                )
                         else:
-                            st.error("Download completed, but file not found at the specified location.")
+                            st.error("Download completed, but file not found.")
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
                 finally:
