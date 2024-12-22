@@ -96,7 +96,7 @@ def main():
     file_name = st.text_input("Enter a File Name")
 
     # User specifies the download path (no placeholder)
-    download_path = st.text_input("Download Path (C:\\Users\\YourUsername\\Downloads)")
+    download_path = st.text_input("Download Path (e.g., C:\\Users\\YourUsername\\Downloads)")
 
     if st.session_state['is_downloading']:
         st.button("Downloading...", disabled=True)
@@ -111,9 +111,10 @@ def main():
             else:
                 try:
                     # Ensure the specified path exists or create it
-                    pathlib.Path(download_path).mkdir(parents=True, exist_ok=True)
+                    download_path_obj = pathlib.Path(download_path).resolve()
+                    download_path_obj.mkdir(parents=True, exist_ok=True)
 
-                    file_path = str(pathlib.Path(download_path) / f"{file_name}.mp4")
+                    file_path = str(download_path_obj / f"{file_name}.mp4")
 
                     st.session_state['progress_bar'] = st.empty()
                     st.session_state['status_text'] = st.empty()
