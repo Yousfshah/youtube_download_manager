@@ -57,6 +57,8 @@ def download_video(link, file_path):
 def main():
     st.header("🎥 :rainbow[YouTube Video Downloader For PC & Laptops]")
 
+    st.write(":rainbow[To enhance your experience, it is recommended to download videos with a duration of 10 minutes or less]")
+    
     st.write(":rainbow[Download YouTube videos in 1080p resolution]")
 
     link = st.text_input("Enter YouTube Video Link")
